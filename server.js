@@ -15,7 +15,7 @@ mongoose.connect("mongodb://localhost:27017/mydb", { useNewUrlParser: true });
 const connection = mongoose.connection;
 
 connection.once("open", () => {
-  console.log("MongoDB database connection established successfully");
+  console.log("MongoDB database connection established successfully.");
 });
 
 router.route("/issues").get((req, res) => {
