@@ -65,7 +65,7 @@ router.route("/issues/update/:id").post((req, res) => {
     issue
       .save()
       .then(issue => {
-        res.json("Update done");
+        res.json("Update done.");
       })
       .catch(err => {
         res.status(400).send("Update failed");
