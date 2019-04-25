@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
+import nodemailer from "nodemailer";
 const session = require("express-session");
 const MongoStore = require("connect-mongo")(session);
 
@@ -28,7 +29,7 @@ app.use(
     saveUninitialized: false,
     store: new MongoStore({
       mongooseConnection: connection,
-      ttl: 0.2 * 60,
+      ttl: 5 * 60,
       autoRemove: "native"
     }),
     cookie: { secure: false }
@@ -196,6 +197,53 @@ app.route("/api/logout").post((req, res) => {
         }
       });
     }
+  });
+});
+
+app.route("/api/sendemail").post(verifyToken, (req, res) => {
+  const output = `
+    <p>You have new contact request</p>
+    <h3>Contact Details</h3>
+    <ul>
+      <li>Name: ${req.body.name} </li>
+      <li>Company: ${req.body.company} </li>
+      <li>Email Address: ${req.body.email} </li>
+      <li>Phone Number: ${req.body.phone} </li>
+    </ul>
+    <h3>Message</3>
+    <p>${req.body.message}</p>
+  `;
+
+  // create reusable transporter object using the default SMTP transport
+  let transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false, // true for 465, false for other ports
+    auth: {
+      user: "iequotationinfo@gmail.com", // generated ethereal user
+      pass: "iequotation2018" // generated ethereal password
+    },
+    tls: {
+      rejectUnauthorized: false
+    }
+  });
+
+  // send mail with defined transport object
+  let mailOptions = {
+    from: '"Kien Haw 👻" <iequotationinfo@gmail.com>', // sender address
+    to: "kienhaw94@gmail.com", // list of receivers
+    subject: "Node Contact Request ✔", // Subject line
+    text: "Hello world?", // plain text body
+    html: output // html body
+  };
+
+  transporter.sendMail(mailOptions, (err, info) => {
+    if (err) {
+      return console.log(error);
+    }
+    console.log("Message sent: %s", info.messageId);
+
+    res.status(200).json({ msg: "Email has been sent!" });
   });
 });
 
